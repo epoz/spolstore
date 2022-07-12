@@ -79,4 +79,8 @@ https://www.w3.org/People/Berners-Lee/card#i|Berners-Lee
 https://www.w3.org/People/Berners-Lee/card#i|Timothy Berners-Lee
 ```
 
-etc.
+## TODO
+
+This is very much the first working version. Consider it a practical prototype. Probably many bugs...
+
+- Handle languages and data types properly for Literals, in stead of the current dumb dumps

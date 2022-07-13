@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="spolstore",
-    version="0.1",
+    version="0.2",
     description="rdflib store using SQLite Fulltext index",
     long_description=(pathlib.Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -31,7 +31,7 @@ setup(
         "Tracker": "https://github.com/epoz/spolstore/issues",
     },
     packages=["spolstore"],
-    install_requires=["rdflib~=6.0", "apsw"],
+    install_requires=["rdflib~=6.0", "apsw", "rich"],
     entry_points={
         "rdf.plugins.store": [
             "spol = spolstore:SpolStore",

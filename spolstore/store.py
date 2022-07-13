@@ -1,8 +1,12 @@
-from typing import Tuple, Optional
 from rdflib.term import Node, Literal, URIRef
-from rdflib.graph import Graph
 from rdflib.store import VALID_STORE, Store
+from rich.progress import Progress, TextColumn, SpinnerColumn, TimeElapsedColumn
+from typing import Tuple, Optional
+from rdflib.graph import Graph
+import argparse
 import apsw
+import gzip
+
 
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS spo(s INTEGER, p INTEGER, o INTEGER);
@@ -121,3 +125,69 @@ class SpolStore(Store):
         spo = c.execute("SELECT COUNT(*) FROM spo").fetchone()[0]
         spl = c.execute("SELECT COUNT(*) FROM literals").fetchone()[0]
         return spo + spl
+
+
+def ingest_nt(inputfilepath, spolfilepath, total=None):
+    """
+    For performance reasons, 'manually' parse .nt files and not use rdflib.plugins.parsers.ntriples
+    Assuming that all the URIs in the input file are quoted, and literals are well-formed...
+
+    Of course in real-world data this is almost always never the case, but then those will be dropped.
+    """
+
+    store = SpolStore()
+    store.open(spolfilepath)
+    if inputfilepath.lower().endswith(".gz"):
+        F = gzip.open(inputfilepath)
+    else:
+        F = open(inputfilepath)
+    count = 0
+    with Progress(
+        TextColumn("{task.fields[count]}"),
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+        transient=True,
+    ) as prog:
+        task = prog.add_task(f"Reading [green]{inputfilepath}", total=total, count=0)
+        while True:
+            line = F.readline()
+            if len(line) < 1:
+                break
+            count += 1
+            prog.update(task, advance=1, count=count)
+            line = line.strip()
+            parts = line.split(" ")
+            if len(parts) < 3:
+                continue
+            s = parts[0]
+            p = parts[1]
+            o = parts[2]
+            if s[0] != "<" or s[-1] != ">":
+                continue
+            if p[0] != "<" or p[-1] != ">":
+                continue
+            s = s.strip("<>")
+            p = p.strip("<>")
+            if o[0] == "<" and o[-1] == ">":
+                o = o.strip("<>")
+            else:
+                o = " ".join(parts[2:])
+                o = Literal(o.rstrip(". "))
+            store.add((s, p, o), None)
+    F.close()
+
+
+def main():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument(
+        "input_file",
+        help="The inputfile to index, currently only ntriples (.nt) are supported",
+    )
+    argparser.add_argument(
+        "sqlite_file",
+        help="The path to the sqlite SPOLStore file that will be created with the FTS data",
+    )
+    argparser.add_argument("--total", dest="total", default=None, type=int)
+    args = argparser.parse_args()
+    ingest_nt(args.input_file, args.sqlite_file, args.total)

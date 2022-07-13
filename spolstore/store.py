@@ -1,7 +1,8 @@
+from rich.progress import Progress, TextColumn, SpinnerColumn, TimeElapsedColumn
 from rdflib.term import Node, Literal, URIRef
 from rdflib.store import VALID_STORE, Store
-from rich.progress import Progress, TextColumn, SpinnerColumn, TimeElapsedColumn
 from typing import Tuple, Optional
+from functools import lru_cache
 from rdflib.graph import Graph
 import argparse
 import apsw
@@ -52,6 +53,7 @@ class SpolStore(Store):
         for rowid in c.execute("SELECT iri FROM iris WHERE rowid = ?", (rowid,)):
             return URIRef(rowid[0])
 
+    @lru_cache(maxsize=20000)
     def irii(self, iri, insert_if_not_found=True):
         "Return the integer rowid for the given iri, and insert if it does not exist"
         iri = str(iri)

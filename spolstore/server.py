@@ -1,4 +1,3 @@
-import aiosqlite
 import rdflib
 from starlette.responses import PlainTextResponse, HTMLResponse
 from starlette.exceptions import HTTPException

@@ -37,10 +37,10 @@ g.parse("http://www.w3.org/People/Berners-Lee/card")
 q = """
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-    SELECT ?s ?p ?o
+    SELECT ?s ?p2 ?o
     WHERE {
             ?s ?p "web workshop" .
-            ?s ?p ?o .
+            ?s ?p2 ?o .
     }
 """
 for r in g.query(q):

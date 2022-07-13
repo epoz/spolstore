@@ -138,9 +138,9 @@ def ingest_nt(inputfilepath, spolfilepath, total=None):
     store = SpolStore()
     store.open(spolfilepath)
     if inputfilepath.lower().endswith(".gz"):
-        F = gzip.open(inputfilepath)
+        F = gzip.open(inputfilepath, "rt")
     else:
-        F = open(inputfilepath)
+        F = open(inputfilepath, "rt")
     count = 0
     with Progress(
         TextColumn("{task.fields[count]}"),

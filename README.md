@@ -47,6 +47,21 @@ for r in g.query(q):
     print(r)
 ```
 
+### Import an ntriples file from disk
+
+You can also load a .nt file from disk using SPOLStore like so:
+
+```shell
+python -m spolstore example.nt example.spol
+```
+
+The file can be compressed. The script checks for an extension named .gz, and if so, will uncompress the file when reading.
+If you know how many triples there are in the file, you can also specify it on the command line to see the progress.
+
+```shell
+python -m spolstore --total=6122281 abiggerfile.nt.gz someotherfile.spol
+```
+
 ## Querying the database directly
 
 For applications that need to do bulk data reconciliation, it is useful to query the SPOLstore database directly,

@@ -8,20 +8,18 @@ from rich import print
 import os, sys
 import apsw
 
-DEBUG = os.environ.get("SPOLDBPATH") != None
+DEBUG = os.environ.get("DEBUG") != None
 
+DB = None
 SPOLDBPATH = os.environ.get("SPOLDBPATH")
-if not SPOLDBPATH:
-    print(
-        "[red]Error: [default]There is no [green]SPOLDBPATH[/green] environment variable defined."
-    )
-    sys.exit(1)
-else:
+if SPOLDBPATH:
     print(f"[green]OK:[/green]    serving [blue]{SPOLDBPATH}")
-DB = apsw.Connection(SPOLDBPATH)
+    DB = apsw.Connection(SPOLDBPATH)
 
 
 async def irii(request):
+    if DB is None:
+        raise HTTPException(500, detail="A SPOLDBPATH is not configured")
     if "irii" not in request.query_params:
         raise HTTPException(404, detail="An irii parameter is not included")
     c = DB.cursor()
@@ -38,6 +36,8 @@ async def irii(request):
 
 
 async def sparql(request):
+    if DB is None:
+        raise HTTPException(500, detail="A SPOLDBPATH is not configured")
     query = request.query_params.get("query")
     if request.method == "POST":
         form = await request.form()

@@ -4,18 +4,24 @@ A Python RDFLib store that stores RDF data on a simple Subject-Predicate-Object-
 
 ## Usage
 
+First install the package, this can be done with:
+
+```shell
+pip install spolstore
+```
+
 To use this as a store in RDFlib, initialize and open a graph:
 
 ```python
 import rdflib
-g = rdflib.Graph(store="spol")
+g = rdflib.Graph("spol")
 ```
 
 Before you can use it, it needs to be `opened` by specifying where on the filesystem the sqlite database containing the graph is.
 
 ```python
 import rdflib
-g = rdflib.Graph(store="spol")
+g = rdflib.Graph("spol")
 g.open("/tmp/example.spol")
 ```
 
@@ -25,7 +31,7 @@ Once a graph has been parsed, you can perform fulltext searches using a SPARQL q
 
 ```python
 import rdflib
-g = rdflib.Graph(store="spol")
+g = rdflib.Graph("spol")
 g.open("/tmp/example.spol")
 g.parse("http://www.w3.org/People/Berners-Lee/card")
 q = """

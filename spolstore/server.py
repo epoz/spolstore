@@ -15,6 +15,8 @@ SPOLDBPATH = os.environ.get("SPOLDBPATH")
 if SPOLDBPATH:
     print(f"[green]OK:[/green]    serving [blue]{SPOLDBPATH}")
     DB = apsw.Connection(SPOLDBPATH)
+    c = DB.cursor()
+    c.execute("PRAGMA journal_mode=wal")
 
 
 async def irii(request):

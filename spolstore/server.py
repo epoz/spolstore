@@ -18,6 +18,8 @@ if SPOLDBPATH:
     c = DB.cursor()
     c.execute("PRAGMA journal_mode=wal")
 
+SPARQL_ENDPOINT = os.environ.get("SPARQL_ENDPOINT", "/sparql")
+
 
 async def irii(request):
     if DB is None:
@@ -60,18 +62,21 @@ async def sparql(request):
   <div id="yasgui"></div>
   <script>
     const yasgui = new Yasgui(document.getElementById("yasgui"), {
-        requestConfig: { endpoint: "/sparql" },
+        requestConfig: { endpoint: '{{SPARQL_ENDPOINT}}' },
         copyEndpointOnNewTab: false,
     });
   </script>  
   </body>
 </html>
 """
+        resp = resp.replace("{{SPARQL_ENDPOINT}}", SPARQL_ENDPOINT)
         return HTMLResponse(resp)
     G = rdflib.Graph("spol")
     G.open(SPOLDBPATH)
     result = G.query(query)
-    return PlainTextResponse(result.serialize(format="json"))
+    return PlainTextResponse(
+        result.serialize(format="json"), headers={"Access-Control-Allow-Origin": "*"}
+    )
 
 
 server = Starlette(

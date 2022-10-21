@@ -119,8 +119,11 @@ class SpolStore(Store):
         sql = "SELECT s, p, o FROM literals"
         if stmt:
             sql = sql + " WHERE " + " AND ".join(stmt)
-        for row_s, row_p, row_o in c.execute(sql, vars):
-            yield (self.iiri(row_s), self.iiri(row_p), Literal(row_o)), None
+        try:
+            for row_s, row_p, row_o in c.execute(sql, vars):
+                yield (self.iiri(row_s), self.iiri(row_p), Literal(row_o)), None
+        except apsw.SQLError:
+            raise Exception(f"SQL Error {sql}, {vars}")
 
     def __len__(self, context=None):
         c = self._db.cursor()
